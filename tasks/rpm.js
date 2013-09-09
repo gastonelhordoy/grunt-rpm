@@ -9,7 +9,7 @@
 'use strict';
 
 var path = require('path');
-var spec = require('./lib/spec-writer');
+var spec = require('./lib/default-spec-writer');
 
 // TODO try adding also the BUILDROOT folder
 var tmpFolder = 'tmp';
@@ -56,19 +56,22 @@ function filterFiles(grunt, files) {
 function copyFilesToPack(grunt, buildPath, filesToPack) {
 	return function(callback) {
 		grunt.util.async.forEach(filesToPack, function(fileConfig, callback) {
-			var filepathDest = path.join(buildPath, fileConfig.dest, fileConfig.path);
-			
-			if (grunt.file.isDir(fileConfig.path)) {
-				// Create a folder inside the destination directory.
-				grunt.verbose.writeln('Creating folder "' + filepathDest + '"');
-				grunt.file.mkdir(filepathDest);
-			} else {
-				// Copy a file to the destination directory inside the tmp folder.
-				grunt.verbose.writeln('Copying file "' + fileConfig.path + '" to "' + filepathDest + '"');
-				grunt.file.copy(fileConfig.path, filepathDest);
+			try {
+				var filepathDest = path.join(buildPath, fileConfig.dest, fileConfig.path);
+				
+				if (grunt.file.isDir(fileConfig.path)) {
+					// Create a folder inside the destination directory.
+					grunt.verbose.writeln('Creating folder "' + filepathDest + '"');
+					grunt.file.mkdir(filepathDest);
+				} else {
+					// Copy a file to the destination directory inside the tmp folder.
+					grunt.verbose.writeln('Copying file "' + fileConfig.path + '" to "' + filepathDest + '"');
+					grunt.file.copy(fileConfig.path, filepathDest);
+				}
+				callback();
+			} catch(e) {
+				callback(e);
 			}
-			
-			callback();
 		}, callback);
 	};
 }
@@ -76,29 +79,33 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 /**
  * Write the spec file that rpmbuild will read for the rpm details
  */
-function writeSpecFile(grunt, specPath, options, filesToPack, callback) {
+function writeSpecFile(grunt, specPath, options, filesToPack) {
 	return function(callback) {
-		options.files = filesToPack;
-		var pkg = grunt.file.readJSON(path.resolve('package.json'));
-		grunt.util._.defaults(options, pkg);
-		
-		options.specFilepath = path.join(specPath, options.name + '.spec');
-		spec(options, callback);
+		try {
+			options.files = filesToPack;
+			var pkg = grunt.file.readJSON(path.resolve('package.json'));
+			grunt.util._.defaults(options, pkg);
+			
+			options.specFilepath = path.join(specPath, options.name + '.spec');
+			spec(options, callback);
+		} catch(e) {
+			callback(e);
+		}
 	};
 }
 
 /**
  * Execute rpmbuild as child process passing in the specific details for building this rpm.
- * rpmbuild -bb --buildroot '/path/to/destination/TMP' --define='_topdir /path/to/destination' '/path/to/destination/SPECS/project.spec'
+ * rpmbuild -bb --target noarch --buildroot '/path/to/destination/TMP' --define='_topdir /path/to/destination' '/path/to/destination/SPECS/project.spec'
  */
-function spawnRpmbuild(grunt, destination, buildPath, specFilepath) {
-	
+function spawnRpmbuild(grunt, buildPath, rootPath, specFilepath) {
 	return function(callback) {
+		// FIXME make the hardcoded target architecture platform configurable
 		var options = {
 			cmd: 'rpmbuild',
-			args: ['-bb', '--buildroot', buildPath, '--define', '\'_topdir ' + destination + '\'', specFilepath],
+			args: ['-bb', '--target', 'noarch', '--buildroot', buildPath, '--define', '\'_topdir ' + rootPath + '\'', specFilepath],
 			// Additional options for the Node.js child_process spawn method.
-			opts: nodeSpawnOptions,
+//			opts: nodeSpawnOptions,
 		};
 		grunt.util.spawn(options, function(err, result, code) {
 			// TODO check code [and result] for more detailed response
@@ -134,14 +141,10 @@ function createRpmMultiTask(grunt) {
 			function(callback) {
 				grunt.util.async.parallel([
 					copyFilesToPack(grunt, buildPath, filesToPack),
-					writeSpecFile(grunt, specPath, options, filesToPack, callback)
+					writeSpecFile(grunt, specPath, options, filesToPack)
 				], callback);
 			},
-			function(callback) {
-				// TODO spawn rpmbuild
-				// grunt.util.spawn();
-				callback();
-			}
+			spawnRpmbuild(grunt, buildPath, options.destination, options.specFilepath)
 		], done);
 	};
 }

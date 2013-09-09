@@ -28,8 +28,6 @@
     "test": "grunt test"
   },
   "dependencies": {
-	"fs.extra": ">=1.2.1",
-	"swig": "1.0.0-pre3"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "~0.6.0",

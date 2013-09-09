@@ -18,6 +18,27 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('rpm');
 ```
 
+This plugin also requires rpmbuild to be installed in the host where the task is going to run. This is the tool grunt-rpm will use to build RPMs from specfiles that are automatically generated. To check if it is installed, run the rpmbuild --showrc command. A large set of data should be displayed, enumerating details of the build environment that rpmbuild is using.
+
+If the tool is not found, you can install it with yum by running the following command as root:
+```shell
+yum install rpm-build
+```
+Other useful commands that you might need while building RPMs files are:
+```shell
+yum install rpmlint
+yum --nogpgcheck localinstall packagename.arch.rpm 
+```
+The first command checks if there are non-compliant aspects about your RPM.
+The second one uses yum top install your RPM without the need to deploy it to a yum repository and re-index it.
+
+Most documentation can be found here:
+http://www.rpm.org/max-rpm/index.html
+http://wiki.centos.org/TipsAndTricks/YumAndRPM
+http://rpmbuildtut.wordpress.com/
+
+[root@hostname ~]# yum install rpm-build 
+
 ## The "rpm" task
 
 ### Overview

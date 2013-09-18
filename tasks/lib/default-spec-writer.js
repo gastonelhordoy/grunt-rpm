@@ -2,6 +2,15 @@
 var path = require('path');
 var fs = require('fs');
 
+
+function unixifyPath(filepath) {
+	if (process.platform === 'win32') {
+		return filepath.replace(/\\/g, '/');
+	} else {
+		return filepath;
+	}
+};
+
 function formatTwoDigists(number) {
 	if (number < 10) {
 		return '0' + number;
@@ -12,7 +21,7 @@ function formatTwoDigists(number) {
 
 function formatTimestamp(date) {
 	var str = date.getFullYear();
-	str += formatTwoDigists(date.getMonth());
+	str += formatTwoDigists(date.getMonth() + 1);
 	str += formatTwoDigists(date.getDate());
 	str += formatTwoDigists(date.getHours());
 	str += formatTwoDigists(date.getMinutes());
@@ -59,21 +68,34 @@ function formatFileList(options) {
 		}
 		for (var i in options.files) {
 			var rpmFile = options.files[i];
-			if (!rpmFile.noRecursion) {
+//			if (!rpmFile.noRecursion) {
 				if (rpmFile.filemode || rpmFile.username || rpmFile.groupname) {
 					str += '%attr(' 
 						+ optionalValue(rpmFile.filemode) + ',' 
 						+ optionalValue(rpmFile.username) + ',' 
 						+ optionalValue(rpmFile.groupname) + ') ';
 				}
-				str += path.join(path.sep, rpmFile.dest, rpmFile.path) + '\n';
-			} else {
-				str += '%dir ' + path.join(path.sep, rpmFile.dest + rpmFile.path) + '\n';
-			}
+				str += '"' + unixifyPath(path.join(path.sep, rpmFile.dest, rpmFile.path)) + '"\n';
+//			} else {
+//				str += '%dir "' + unixifyPath(path.join(path.sep, rpmFile.dest + rpmFile.path)) + '"\n';
+//			}
 		}
 	}
 	
 	return str;
+}
+
+function readScriptlet(label, scriptFile) {
+	var src = '';
+	if (scriptFile) {
+		var options = {
+			encoding: scriptFile.encoding || 'utf8'
+		};
+		var data = fs.readFileSync(scriptFile.src, options);
+		src += label + '\n';
+		src += data.trim() + '\n\n';
+	}
+	return src;
 }
 
 /**
@@ -81,7 +103,12 @@ function formatFileList(options) {
  * @module exec
  */
 module.exports = function(options, callback) {
-	var src = formatField('Name', options.name);
+//	grunt.verbose.writeln('Writing SPEC basic section...');
+	
+	// FIXME the following macro definition should not be needed if the --define command line parameter is taken into account by rpmbuild
+	var src = '%define   _topdir ' + path.join(process.cwd(), options.destination) + '\n\n';
+	
+	src += formatField('Name', options.name);
 	src += formatField('Version', options.version);
 	src += 'Release: ';
 	if (options.release) {
@@ -92,7 +119,7 @@ module.exports = function(options, callback) {
 	
 	src += formatField('URL', options.homepage);
 	src += formatField('Summary', options.summary);
-	src += formatField('License', options.license);
+	src += formatField('License', optionalValue(options.license, options.licenses[0].type));
 	src += formatField('Distribution', options.distribution);
 	src += formatField('Vendor', options.vendor);
 	src += formatField('Group', options.group);
@@ -100,7 +127,15 @@ module.exports = function(options, callback) {
 	src += formatField('autoprov', 'yes');
 	src += formatField('autoreq', 'yes');
 	src += formatField('\n%description', options.description, '\n');
+	
+//	grunt.verbose.writeln('Writing SPEC files section...');
 	src += formatFileList(options);
-
+	
+//	grunt.verbose.writeln('Writing SPEC scriptlet section...');
+	src += readScriptlet('\n%pre', options.preInstall);
+	src += readScriptlet('\n%post', options.postInstall);
+	src += readScriptlet('\n%preun', options.preUninstall);
+	src += readScriptlet('\n%postun', options.postUninstall);
+	
 	fs.writeFile(options.specFilepath, src, callback);
 };

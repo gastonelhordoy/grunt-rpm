@@ -192,8 +192,8 @@ function createRpmMultiTask(grunt) {
 					copyFilesToPack(grunt, buildPath, filesToPack),
 					writeSpecFile(grunt, options, filesToPack)
 				], callback);
-			}/*,
-			spawnRpmbuild(grunt, buildPath, options)*/
+			},
+			spawnRpmbuild(grunt, buildPath, options)
 		], done);
 	};
 }

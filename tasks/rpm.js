@@ -1,6 +1,5 @@
 /*
- * rpm
- * 
+ * grunt-rpm
  *
  * Copyright (c) 2013 Gaston Elhordoy
  * Licensed under the MIT license.
@@ -12,10 +11,9 @@ var path = require('path');
 var fs = require('fs.extra');
 var spec = require('./lib/default-spec-writer');
 
-// TODO try adding also the BUILDROOT folder
 var tmpFolder = 'tmp';
 var specFolder = 'SPECS';
-var folders = ['BUILD', 'RPMS', 'SOURCES', 'SRPMS', specFolder];
+var folders = ['BUILD', 'BUILDROOT', 'RPMS', 'SOURCES', 'SRPMS', specFolder];
 
 
 /**
@@ -23,7 +21,7 @@ var folders = ['BUILD', 'RPMS', 'SOURCES', 'SRPMS', specFolder];
  * TODO make this asynchronous.
  * @param {Grunt} grunt - the grunt instance.
  * @param {Array} files - list of file mappings already resolved by grunt.
- * @returns {Array} list of file configuration filtered by invalid sources and with additional configuration that might come along with each file mapping.
+ * @returns {Array} list of file configuration filtered by invalid sources and with additional configuration that may come along with each file mapping.
  */
 function filterFiles(grunt, files) {
 	var filesToPack = [];
@@ -142,14 +140,12 @@ function spawnRpmbuild(grunt, buildPath, options) {
 		var buildroot = path.join(process.cwd(), buildPath);
 //		var topdir = path.join(process.cwd(), options.destination);
 		var specfile = path.join(process.cwd(), options.specFilepath);
+		var target = 'noarch';
 		
 		// FIXME the --define command line parameter is not taken into account by rpmbuild so a macro definition must be specified in the spec file
 		var rpmbuildOptions = {
 			cmd: 'rpmbuild',
-			args: ['-bb', '--target', 'noarch', '--buildroot', buildroot, /*'--define=\'_topdir ' + topdir + '\'',*/ specfile],
-			// Additional options for the Node.js child_process spawn method.
-			// check http://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
-//			opts: nodeSpawnOptions,
+			args: ['-bb', '--target', target, '--buildroot', buildroot, /*'--define=\'_topdir ' + topdir + '\'',*/ specfile],
 		};
 		
 		grunt.log.writeln('Spawning rpmbuild: %j', rpmbuildOptions);

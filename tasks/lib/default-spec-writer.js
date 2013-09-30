@@ -123,6 +123,7 @@ module.exports = function(options, callback) {
 	src += formatField('Distribution', options.distribution);
 	src += formatField('Vendor', options.vendor);
 	src += formatField('Group', options.group);
+	src += formatField('Provides', options.provides);
 	src += formatLabeledList('Requires', options.requires);
 	src += formatField('autoprov', 'yes');
 	src += formatField('autoreq', 'yes');

@@ -15,7 +15,7 @@ npm install grunt-rpm --save-dev
 Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
 
 ```js
-grunt.loadNpmTasks('rpm');
+grunt.loadNpmTasks('grunt-rpm');
 ```
 
 This plugin also requires rpmbuild to be installed in the host where the task is going to run. This is the tool grunt-rpm will use to build RPMs from specfiles that are automatically generated. To check if it is installed, run the rpmbuild --showrc command. A large set of data should be displayed, enumerating details of the build environment that rpmbuild is using.

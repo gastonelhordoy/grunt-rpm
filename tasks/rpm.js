@@ -140,7 +140,7 @@ function spawnRpmbuild(grunt, buildPath, options) {
 		var buildroot = path.join(process.cwd(), buildPath);
 //		var topdir = path.join(process.cwd(), options.destination);
 		var specfile = path.join(process.cwd(), options.specFilepath);
-		var target = 'noarch';
+                var target = options.targetArch || 'noarch';
 		
 		// FIXME the --define command line parameter is not taken into account by rpmbuild so a macro definition must be specified in the spec file
 		var rpmbuildOptions = {

@@ -111,8 +111,10 @@ module.exports = function(options, callback) {
 	src += formatField('Name', options.name);
 	src += formatField('Version', options.version);
 	src += 'Release: ';
-	if (options.release) {
-		src += '1\n';
+        if (options.release === true) {
+                src += '1\n';
+        } else if (options.release) {
+                src += options.release + '\n';
 	} else {
 		src += 'SNAPSHOT' + formatTimestamp(new Date()) + '\n';
 	}

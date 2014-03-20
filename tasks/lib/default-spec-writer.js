@@ -121,7 +121,7 @@ module.exports = function(options, callback) {
 	
 	src += formatField('URL', options.homepage);
 	src += formatField('Summary', options.summary);
-	src += formatField('License', optionalValue(options.license, options.licenses[0].type));
+	src += formatField('License', optionalValue(options.license, options.licenses && options.licenses[0] && options.licenses[0].type));
 	src += formatField('Distribution', options.distribution);
 	src += formatField('Vendor', options.vendor);
 	src += formatField('Group', options.group);

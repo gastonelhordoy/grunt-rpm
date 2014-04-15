@@ -41,9 +41,6 @@ function filterFiles(grunt, files) {
 			// Warn on invalid source files (if nonull was set).
 			if (!grunt.file.exists(filepath)) {
 				grunt.log.warn('Source file "' + filepath + '" does not exists');
-			} else if (grunt.file.isLink(filepath)) {
-				// TODO handle links
-				grunt.log.warn('Source file "' + filepath + '" is a link and it not supported yet');
 			} else {
 				
 				var fileConfig = grunt.util._.omit(fileMapping, 'src', 'orig', 'filter');
@@ -59,6 +56,9 @@ function filterFiles(grunt, files) {
 					if (grunt.file.isDir(filepath) && !fileMapping.includeDirectories) {
 						return;
 					}
+				}
+				if (grunt.file.isLink(filepath)) {
+					fileConfig.link = _fs.readlinkSync(filepath);
 				}
                                 if (fileMapping.relativeTo) {
 					if (grunt.file.doesPathContain(fileMapping.relativeTo, filepath)) {
@@ -99,12 +99,18 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 					}
 				} else {
 					// Copy a file to the destination directory inside the tmp folder.
-					grunt.verbose.writeln('Copying file "' + fileConfig.src + '" to "' + filepathDest + '"');
-					grunt.file.copy(fileConfig.src, filepathDest);
-					fs.lstat(fileConfig.src, function(err, stat) {
-						if (err) throw err;
-						_fs.chmod(filepathDest, stat.mode, callback);
-					});
+					if (fileConfig.link) {
+						grunt.verbose.writeln('Copying symlink "' + fileConfig.src + '->' + fileConfig.link + '" to "' + filepathDest + '"');
+						_fs.symlink(fileConfig.link, filepathDest, 'file', callback);
+					}
+					else {
+						grunt.verbose.writeln('Copying file "' + fileConfig.src + '" to "' + filepathDest + '"');
+						grunt.file.copy(fileConfig.src, filepathDest);
+						fs.lstat(fileConfig.src, function(err, stat) {
+							if (err) throw err;
+							_fs.chmod(filepathDest, stat.mode, callback);
+						});
+					}
 				}
 				
 			} catch(e) {

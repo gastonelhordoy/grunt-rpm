@@ -8,6 +8,7 @@
 'use strict';
 
 var path = require('path');
+var _fs = require('fs');
 var fs = require('fs.extra');
 var spec = require('./lib/default-spec-writer');
 
@@ -100,7 +101,10 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 					// Copy a file to the destination directory inside the tmp folder.
 					grunt.verbose.writeln('Copying file "' + fileConfig.src + '" to "' + filepathDest + '"');
 					grunt.file.copy(fileConfig.src, filepathDest);
-					callback();
+					fs.lstat(fileConfig.src, function(err, stat) {
+						if (err) throw err;
+						_fs.chmod(filepathDest, stat.mode, callback);
+					});
 				}
 				
 			} catch(e) {

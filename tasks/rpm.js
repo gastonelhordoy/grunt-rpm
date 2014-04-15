@@ -55,7 +55,12 @@ function filterFiles(grunt, files) {
 						grunt.log.warn('The path %s is not a directory but it is marked as such', filepath, fileMapping.relativeTo);
 					}
 				}
-				if (fileMapping.relativeTo) {
+				else {
+					if (grunt.file.isDir(filepath) && !fileMapping.includeDirectories) {
+						return;
+					}
+				}
+                                if (fileMapping.relativeTo) {
 					if (grunt.file.doesPathContain(fileMapping.relativeTo, filepath)) {
 						fileConfig.path = path.relative(fileMapping.relativeTo, filepath);
 					} else {

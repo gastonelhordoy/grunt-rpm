@@ -38,8 +38,9 @@ function filterFiles(grunt, files) {
 		
 		// Evaluate specified source files to determine what to do in each case
 		fileMapping.src.forEach(function(filepath) {
+			var isLink = grunt.file.isLink(filepath);
 			// Warn on invalid source files (if nonull was set).
-			if (!grunt.file.exists(filepath)) {
+			if (!grunt.file.exists(filepath) && !isLink) {
 				grunt.log.warn('Source file "' + filepath + '" does not exists');
 			} else {
 				
@@ -57,10 +58,10 @@ function filterFiles(grunt, files) {
 						return;
 					}
 				}
-				if (grunt.file.isLink(filepath)) {
+				if (isLink) {
 					fileConfig.link = _fs.readlinkSync(filepath);
 				}
-                                if (fileMapping.relativeTo) {
+				if (fileMapping.relativeTo) {
 					if (grunt.file.doesPathContain(fileMapping.relativeTo, filepath)) {
 						fileConfig.path = path.relative(fileMapping.relativeTo, filepath);
 					} else {

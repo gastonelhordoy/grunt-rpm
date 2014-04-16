@@ -38,7 +38,7 @@ function filterFiles(grunt, files) {
 		
 		// Evaluate specified source files to determine what to do in each case
 		fileMapping.src.forEach(function(filepath) {
-			var isLink = grunt.file.isLink(filepath);
+			var isLink = _fs.lstatSync(filepath).isSymbolicLink();
 			// Warn on invalid source files (if nonull was set).
 			if (!grunt.file.exists(filepath) && !isLink) {
 				grunt.log.warn('Source file "' + filepath + '" does not exists');

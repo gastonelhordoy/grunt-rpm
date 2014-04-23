@@ -93,20 +93,20 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 					if (fileConfig.directory) {
 						// Copy a whole folder to the destination directory.
 						grunt.verbose.writeln('Copying folder "' + fileConfig.src + '" to "' + filepathDest + '"');
-						fs.copyRecursiveSync(fileConfig.src, filepathDest);
+						fs.copyRecursive(fileConfig.src, filepathDest, callback);
 					} else {
 						// Create a folder inside the destination directory.
 						grunt.verbose.writeln('Creating folder "' + filepathDest + '"');
-						grunt.file.mkdir(filepathDest);
+						fs.mkdirs(filepathDest, callback);
 					}
 				} else {
 					// Copy a file to the destination directory inside the tmp folder.
 					if (fileConfig.link) {
 						grunt.verbose.writeln('Copying symlink "' + fileConfig.src + '->' + fileConfig.link + '" to "' + filepathDest + '"');
 						//ensure the parent directory exists when making symlinks
-						mkdirp(getDirName(filepathDest), function(err) {
+						fs.mkdirs(getDirName(filepathDest), function(err) {
 							if (err) throw err;
-							_fs.symlinkSync(fileConfig.link, filepathDest, 'file');
+							_fs.symlink(fileConfig.link, filepathDest, 'file', callback);
 						});
 						
 					}
@@ -115,7 +115,7 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 						grunt.file.copy(fileConfig.src, filepathDest);
 						fs.lstat(fileConfig.src, function(err, stat) {
 							if (err) throw err;
-							_fs.chmodSync(filepathDest, stat.mode);
+							_fs.chmod(filepathDest, stat.mode, callback);
 						});
 					}
 				}

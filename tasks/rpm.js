@@ -9,7 +9,6 @@
 
 var path = require('path');
 var _fs = require('fs');
-var mkdirp = require("mkdirp");
 var getDirName = require("path").dirname;
 var fs = require('fs.extra');
 var spec = require('./lib/default-spec-writer');

@@ -3,6 +3,8 @@ grunt-rpm
 
 The grunt-rpm plugin allows sources to be packaged in an RPM for distribution. In addition to project artifacts, the RPM can contain other resources to be installed with the artifacts and scripts to be run while the package is being installed and removed. This plugin does not support the full range of features available to RPMs.
 
+[![NPM](https://nodei.co/npm/grunt-rpm.png?downloads=true&stars=true)](https://nodei.co/npm/grunt-rpm/)
+
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
 

@@ -46,7 +46,7 @@ function filterFiles(grunt, files) {
 				grunt.log.warn('Source file "' + filepath + '" is a link and it not supported yet');
 			} else {
 				
-				var fileConfig = grunt.util._.omit(fileMapping, 'src', 'orig', 'filter');
+				var fileConfig = grunt.util._.omit(fileMapping, 'src', 'filter');
 				fileConfig.src = filepath;
 				if (fileMapping.directory) {
 					if (grunt.file.isDir(filepath)) {
@@ -77,6 +77,14 @@ function filterFiles(grunt, files) {
 	return filesToPack;
 }
 
+function detectDestType(grunt, dest) {
+  if (grunt.util._.endsWith(dest, '/')) {
+    return 'directory';
+  } else {
+    return 'file';
+  }
+}
+
 /**
  * Copy all the selected files to the tmp folder which wikll be the buildroot directory for rpmbuild 
  */
@@ -84,8 +92,14 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 	return function(callback) {
 		grunt.util.async.forEach(filesToPack, function(fileConfig, callback) {
 			try {
-				var filepathDest = path.join(buildPath, fileConfig.dest, fileConfig.path);
-				
+				var filepathDest;
+				if (detectDestType(grunt, fileConfig.dest) === 'directory') {
+					var dest = (fileConfig.orig.expand) ? fileConfig.dest : path.join(fileConfig.dest, fileConfig.src);
+					filepathDest = path.join(buildPath, dest);
+				} else {
+					filepathDest = path.join(buildPath, fileConfig.dest);
+				}
+
 				if (grunt.file.isDir(fileConfig.src)) {
 					if (fileConfig.directory) {
 						// Copy a whole folder to the destination directory.

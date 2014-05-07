@@ -75,7 +75,11 @@ function formatFileList(options) {
 						+ optionalValue(rpmFile.username) + ',' 
 						+ optionalValue(rpmFile.groupname) + ') ';
 				}
-				str += '"' + unixifyPath(path.join(path.sep, rpmFile.dest, rpmFile.path)) + '"\n';
+				if (rpmFile.orig.expand) {
+					str += '"' + unixifyPath(path.join(path.sep, rpmFile.dest)) + '"\n';
+				} else {
+					str += '"' + unixifyPath(path.join(path.sep, rpmFile.dest, rpmFile.path)) + '"\n';
+				}
 //			} else {
 //				str += '%dir "' + unixifyPath(path.join(path.sep, rpmFile.dest + rpmFile.path)) + '"\n';
 //			}

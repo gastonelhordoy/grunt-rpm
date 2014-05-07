@@ -94,7 +94,6 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 			try {
 				var filepathDest;
 				if (detectDestType(grunt, fileConfig.dest) === 'directory') {
-					var isExpandedPair = false;
 					var dest = (fileConfig.orig.expand) ? fileConfig.dest : path.join(fileConfig.dest, fileConfig.src);
 					filepathDest = path.join(buildPath, dest);
 				} else {

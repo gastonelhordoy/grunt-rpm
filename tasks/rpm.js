@@ -9,6 +9,7 @@
 
 var path = require('path');
 var _fs = require('fs');
+var getDirName = require("path").dirname;
 var fs = require('fs.extra');
 var spec = require('./lib/default-spec-writer');
 
@@ -38,12 +39,10 @@ function filterFiles(grunt, files) {
 		
 		// Evaluate specified source files to determine what to do in each case
 		fileMapping.src.forEach(function(filepath) {
+			var isLink = _fs.lstatSync(filepath).isSymbolicLink();
 			// Warn on invalid source files (if nonull was set).
-			if (!grunt.file.exists(filepath)) {
+			if (!grunt.file.exists(filepath) && !isLink) {
 				grunt.log.warn('Source file "' + filepath + '" does not exists');
-			} else if (grunt.file.isLink(filepath)) {
-				// TODO handle links
-				grunt.log.warn('Source file "' + filepath + '" is a link and it not supported yet');
 			} else {
 				
 				var fileConfig = grunt.util._.omit(fileMapping, 'src', 'filter');
@@ -60,7 +59,10 @@ function filterFiles(grunt, files) {
 						return;
 					}
 				}
-                                if (fileMapping.relativeTo) {
+				if (isLink) {
+					fileConfig.link = _fs.readlinkSync(filepath);
+				}
+				if (fileMapping.relativeTo) {
 					if (grunt.file.doesPathContain(fileMapping.relativeTo, filepath)) {
 						fileConfig.path = path.relative(fileMapping.relativeTo, filepath);
 					} else {
@@ -108,17 +110,27 @@ function copyFilesToPack(grunt, buildPath, filesToPack) {
 					} else {
 						// Create a folder inside the destination directory.
 						grunt.verbose.writeln('Creating folder "' + filepathDest + '"');
-						grunt.file.mkdir(filepathDest);
-						callback();
+						fs.mkdirs(filepathDest, callback);
 					}
 				} else {
 					// Copy a file to the destination directory inside the tmp folder.
-					grunt.verbose.writeln('Copying file "' + fileConfig.src + '" to "' + filepathDest + '"');
-					grunt.file.copy(fileConfig.src, filepathDest);
-					fs.lstat(fileConfig.src, function(err, stat) {
-						if (err) throw err;
-						_fs.chmod(filepathDest, stat.mode, callback);
-					});
+					if (fileConfig.link) {
+						grunt.verbose.writeln('Copying symlink "' + fileConfig.src + '->' + fileConfig.link + '" to "' + filepathDest + '"');
+						//ensure the parent directory exists when making symlinks
+						fs.mkdirs(getDirName(filepathDest), function(err) {
+							if (err) throw err;
+							_fs.symlink(fileConfig.link, filepathDest, 'file', callback);
+						});
+						
+					}
+					else {
+						grunt.verbose.writeln('Copying file "' + fileConfig.src + '" to "' + filepathDest + '"');
+						grunt.file.copy(fileConfig.src, filepathDest);
+						fs.lstat(fileConfig.src, function(err, stat) {
+							if (err) throw err;
+							_fs.chmod(filepathDest, stat.mode, callback);
+						});
+					}
 				}
 				
 			} catch(e) {

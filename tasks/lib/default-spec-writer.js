@@ -103,7 +103,7 @@ function readScriptlet(label, scriptFile) {
 }
 
 function skipBinariesInNoarchPackageError() {
-	return '%define _binaries_in_noarch_packages_terminate_build   0';
+	return '%define _binaries_in_noarch_packages_terminate_build   0\n\n';
 }
 
 /**

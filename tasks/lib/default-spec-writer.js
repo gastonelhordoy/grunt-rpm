@@ -102,6 +102,10 @@ function readScriptlet(label, scriptFile) {
 	return src;
 }
 
+function skipBinariesInNoarchPackageError() {
+	return '%define _binaries_in_noarch_packages_terminate_build   0\n\n';
+}
+
 /**
  * Provides utility methods to execute a command
  * @module exec
@@ -111,6 +115,8 @@ module.exports = function(options, callback) {
 	
 	// FIXME the following macro definition should not be needed if the --define command line parameter is taken into account by rpmbuild
 	var src = '%define   _topdir ' + path.join(process.cwd(), options.destination) + '\n\n';
+
+	src += skipBinariesInNoarchPackageError();
 	
 	src += formatField('Name', options.name);
 	src += formatField('Version', options.version);

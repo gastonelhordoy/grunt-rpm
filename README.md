@@ -231,7 +231,7 @@ grunt.initConfig({
 })
 ```
 
-In the last snippet 3 users and 1 group were configured for showing the different flavors of customization in terms of file ownership. The configuration was made with no particular deployment schema in mind.
+In the last snippet 3 users and 1 group were configured for showing the different flavors of customization in terms of file ownership. The configuration was made with no particular deployment schema in mind. **NOTE** The dest: must end in a '\' if the target is a directory AND the target doesn't exist. If the target doesn't exist and you intend a file, then the trailing '\' can be omitted.
 Most of the configuration is still picked from the `package.json` file except for the `license` field which is explicitly set to `'MIT'`.
 
 ## Contributing

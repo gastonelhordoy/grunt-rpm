@@ -9,13 +9,13 @@ function unixifyPath(filepath) {
 	} else {
 		return filepath;
 	}
-};
+}
 
 function formatTwoDigists(number) {
 	if (number < 10) {
 		return '0' + number;
 	} else {
-		return number;
+		return number.toString();
 	}
 }
 
@@ -37,7 +37,7 @@ function optionalValue(value, defaultValue) {
 function formatField(label, attr, separator) {
 	separator = separator || ': ';
 	var str = '';
-	
+
 	if (attr) {
 		str = label + separator + attr + '\n';
 	}
@@ -47,7 +47,7 @@ function formatField(label, attr, separator) {
 function formatLabeledList(label, list) {
 	list = list || [];
 	var str = '';
-	
+
 	for(var i in list) {
 		str += formatField(label, list[i]);
 	}
@@ -56,13 +56,13 @@ function formatLabeledList(label, list) {
 
 function formatFileList(options) {
 	var str = '';
-	
+
 	if (options.files && options.files.length > 0) {
 		str += '\n%files\n';
 		if (options.defaultFilemode || options.defaultUsername || options.defaultGroupname || options.defaultDirmode) {
-			str += '%defattr(' 
-				+ optionalValue(options.defaultFilemode) + ',' 
-				+ optionalValue(options.defaultUsername) + ',' 
+			str += '%defattr('
+				+ optionalValue(options.defaultFilemode) + ','
+				+ optionalValue(options.defaultUsername) + ','
 				+ optionalValue(options.defaultGroupname) + ','
 				+ optionalValue(options.defaultDirmode) + ')\n';
 		}
@@ -70,9 +70,9 @@ function formatFileList(options) {
 			var rpmFile = options.files[i];
 //			if (!rpmFile.noRecursion) {
 				if (rpmFile.filemode || rpmFile.username || rpmFile.groupname) {
-					str += '%attr(' 
-						+ optionalValue(rpmFile.filemode) + ',' 
-						+ optionalValue(rpmFile.username) + ',' 
+					str += '%attr('
+						+ optionalValue(rpmFile.filemode) + ','
+						+ optionalValue(rpmFile.username) + ','
 						+ optionalValue(rpmFile.groupname) + ') ';
 				}
 				if (rpmFile.orig.expand) {
@@ -85,7 +85,7 @@ function formatFileList(options) {
 //			}
 		}
 	}
-	
+
 	return str;
 }
 
@@ -112,12 +112,12 @@ function skipBinariesInNoarchPackageError() {
  */
 module.exports = function(options, callback) {
 //	grunt.verbose.writeln('Writing SPEC basic section...');
-	
+
 	// FIXME the following macro definition should not be needed if the --define command line parameter is taken into account by rpmbuild
 	var src = '%define   _topdir ' + path.join(process.cwd(), options.destination) + '\n\n';
 
 	src += skipBinariesInNoarchPackageError();
-	
+
 	src += formatField('Name', options.name);
 	src += formatField('Version', options.version);
 	src += 'Release: ';
@@ -128,7 +128,7 @@ module.exports = function(options, callback) {
 	} else {
 		src += 'SNAPSHOT' + formatTimestamp(new Date()) + '\n';
 	}
-	
+
 	src += formatField('URL', options.homepage);
 	src += formatField('Summary', options.summary);
 	src += formatField('License', optionalValue(options.license, options.licenses && options.licenses[0] && options.licenses[0].type));
@@ -140,15 +140,15 @@ module.exports = function(options, callback) {
 	src += formatField('autoprov', 'yes');
 	src += formatField('autoreq', 'yes');
 	src += formatField('\n%description', options.description, '\n');
-	
+
 //	grunt.verbose.writeln('Writing SPEC files section...');
 	src += formatFileList(options);
-	
+
 //	grunt.verbose.writeln('Writing SPEC scriptlet section...');
 	src += readScriptlet('\n%pre', options.preInstall);
 	src += readScriptlet('\n%post', options.postInstall);
 	src += readScriptlet('\n%preun', options.preUninstall);
 	src += readScriptlet('\n%postun', options.postUninstall);
-	
+
 	fs.writeFile(options.specFilepath, src, callback);
 };

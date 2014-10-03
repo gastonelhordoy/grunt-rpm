@@ -1,7 +1,7 @@
 {
   "name": "grunt-rpm",
   "description": "Grunt plugin to create RPM packages out of a project.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "homepage": "https://github.com/gastonelhordoy/grunt-rpm",
   "author": {
     "name": "Gaston Elhordoy",
@@ -34,7 +34,7 @@
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-clean": "~0.4.0",
     "grunt-contrib-nodeunit": "~0.2.0",
-    "grunt-release": "~0.5.1",
+    "grunt-release": "~0.7.0",
     "grunt": "~0.4.1"
   },
   "peerDependencies": {

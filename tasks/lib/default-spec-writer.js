@@ -20,7 +20,7 @@ function formatTwoDigists(number) {
 }
 
 function formatTimestamp(date) {
-	var str = date.getFullYear();
+	var str = date.getFullYear() + '';
 	str += formatTwoDigists(date.getMonth() + 1);
 	str += formatTwoDigists(date.getDate());
 	str += formatTwoDigists(date.getHours());

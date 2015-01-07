@@ -234,6 +234,49 @@ grunt.initConfig({
 In the last snippet 3 users and 1 group were configured for showing the different flavors of customization in terms of file ownership. The configuration was made with no particular deployment schema in mind. **NOTE** The dest: must end in a slash (`/`) if the target is a directory **and** the target doesn't exist. If the target doesn't exist and you intend a file, then the trailing slash (`/`) can be omitted.
 Most of the configuration is still picked from the `package.json` file except for the `license` field which is explicitly set to `'MIT'`.
 
+### Adding Custom Attributes and Config Files
+
+```js
+var gruntPattern = path.join('node_modules', 'grunt');
+
+grunt.initConfig({
+  rpm: {
+    options: {
+    },
+    your_target: {
+      options: {
+        # %attr (mode, username, groupname) file
+        attributes : [ {
+          file : '/some/file', 
+          mode : '777',
+          username : 'user',
+          groupname : 'group'
+        }, {
+          file : '/some/secret/directory/',
+          mode : '700'
+        } ],
+        # %config file
+        config : [ '/some/config/file', '/some/other/config/file' ]
+      },
+      files: {
+      }
+    }
+  }
+})
+```
+
+In this snippit we show setting custom %attr and %config directives. 
+An %attr directive will be added for each object in target options.attributes. The mode, username and groupname properties can be omitted and a '-' will be inserted. 
+A %config directive will be added for each string in the target options.config. 
+The above example would output the following in the .spec file.
+
+```
+%attr (777,user,group) /some/file
+%attr (700,-,-) /some/secret/directory/
+%config /some/config/file
+%config /some/other/config/file
+```
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 

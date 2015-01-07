@@ -66,6 +66,22 @@ function formatFileList(options) {
 				+ optionalValue(options.defaultGroupname) + ','
 				+ optionalValue(options.defaultDirmode) + ')\n';
 		}
+		if (options.attributes) {
+			for (var j in options.attributes) {
+				var attr = options.attributes[j];
+				var mode = attr.mode || '-';
+				var username = attr.username || '-';
+				var groupname = attr.groupname || '-';
+				str += '%attr(' + mode + ',' + username + ','
+					+ groupname + ') ' + attr.file + '\n';
+			}
+		}
+		if (options.config) {
+			for (var k in options.config) {
+				var config = options.config[k];
+				str += '%config ' + config + '\n';
+			}
+		}
 		for (var i in options.files) {
 			var rpmFile = options.files[i];
 //			if (!rpmFile.noRecursion) {

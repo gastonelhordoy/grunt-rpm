@@ -163,6 +163,12 @@ Default value: (optional)
 
 The default dirmmode used for files that are being copied to the host as part of the installation process.
 
+#### options.relativeTo
+Type: `String`
+Default value: (optional)
+
+The base path for files to be packaged into the RPM within the target directory, what means `relativeTo: dist/` will transform `dist/index.html` to `index.html`.
+
 #### options.preInstall
 Type: `Object`
 Default value: (optional)
@@ -215,7 +221,7 @@ grunt.initConfig({
         {src: ['node_modules/**/*'], dest: '/opt/my/application', filter: function(filepath) {
             return !grunt.util._.startsWith(filepath, gruntPattern);
         }, username: 'myuser2', groupname: 'mygroup'},
-        {src: ['index.js', 'package.json'], dest: '/opt/my/application'}
+        {src: ['index.js', 'package.json'], dest: '/opt/my/application', relativeTo: 'dist/'}
     ],
     snapshot: {
         options: {

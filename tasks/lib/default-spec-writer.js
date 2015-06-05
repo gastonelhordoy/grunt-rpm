@@ -82,6 +82,16 @@ function formatFileList(options) {
 				str += '%config ' + config + '\n';
 			}
 		}
+
+		if (options.directives) {
+			for (var l in options.directives) {
+				var d = options.directives[l];
+				var directive = d.directive;
+				var file = d.file;
+				str += directive + ' ' + file + '\n';
+			}
+		}
+
 		for (var i in options.files) {
 			var rpmFile = options.files[i];
 //			if (!rpmFile.noRecursion) {

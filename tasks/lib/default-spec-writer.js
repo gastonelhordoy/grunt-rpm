@@ -163,8 +163,8 @@ module.exports = function(options, callback) {
 	src += formatField('Group', options.group);
 	src += formatField('Provides', options.provides);
 	src += formatLabeledList('Requires', options.requires);
-	src += formatField('autoprov', 'yes');
-	src += formatField('autoreq', 'yes');
+	src += formatField('autoprov', options.autoprov || 'yes');
+	src += formatField('autoreq', options.autoreq || 'yes');
 	src += formatField('\n%description', options.description, '\n');
 
 //	grunt.verbose.writeln('Writing SPEC files section...');

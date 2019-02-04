@@ -1,7 +1,7 @@
 {
   "name": "grunt-rpm",
   "description": "Grunt plugin to create RPM packages out of a project.",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "homepage": "https://github.com/gastonelhordoy/grunt-rpm",
   "author": {
     "name": "Gaston Elhordoy",
